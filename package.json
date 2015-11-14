@@ -7,7 +7,7 @@
     "upnp-test": "./bin.js"
   },
   "dependencies": {
-    "nat-upnp": "^0.2.11",
+    "nat-upnp": "^1.0.0",
     "pump": "^1.0.0"
   },
   "devDependencies": {},
