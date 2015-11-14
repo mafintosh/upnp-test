@@ -5,13 +5,14 @@ var upnp = require('nat-upnp')
 var net = require('net')
 
 var client = upnp.createClient()
+var buf = ''
 
 client.portMapping({
   public: 33658,
   private: 33658,
   ttl: 0
 }, function (err) {
-  if (err) throw err
+  if (err) return onend()
 
   var server = net.createServer(function (sock) {
     pump(sock, sock)
@@ -19,10 +20,9 @@ client.portMapping({
 
   server.listen(33658, function () {
     client.externalIp(function (err, ip) {
-      if (err) throw err
+      if (err) return onend()
 
       var client = net.connect(33658, ip)
-      var buf = ''
 
       client.setTimeout(20 * 1000, function () {
         client.destroy()
@@ -37,16 +37,16 @@ client.portMapping({
       client.on('data', function (data) {
         buf += data
       })
-
-      function onend () {
-        if (buf === 'hello world') {
-          console.log('✓ Was able to directly connect to this machine over the internet using upnp')
-          process.exit(0)
-        } else {
-          console.error('✗ Could not connect to this machine over the internet using upnp')
-          process.exit(1)
-        }
-      }
     })
   })
 })
+
+function onend () {
+  if (buf === 'hello world') {
+    console.log('✓ Was able to directly connect to this machine over the internet using upnp')
+    process.exit(0)
+  } else {
+    console.error('✗ Could not connect to this machine over the internet using upnp')
+    process.exit(1)
+  }
+}
